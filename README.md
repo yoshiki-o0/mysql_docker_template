@@ -35,3 +35,7 @@ Activate terminal and move to the local repository of this package.
  |DB|sample|
  |User|test|
  |Pass|passwd|
+
+## Reference
+* [Dockerでローカル開発環境用MySQLサーバを動かす](https://qiita.com/rkunihiro/items/ea5d9d9274e30d4880c2)
+* [MySQL :: MySQL Connector/Python Developer Guide :: Connector/Python Coding Examples](https://dev.mysql.com/doc/connector-python/en/connector-python-examples.html)

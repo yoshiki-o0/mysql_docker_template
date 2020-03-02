@@ -1,0 +1,6 @@
+configparser==4.0.2
+dnspython==1.16.0
+mysql-connector-python==8.0.19
+mysql-connector-python-dd==2.0.2
+protobuf==3.6.1
+six==1.14.0

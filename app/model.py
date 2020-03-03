@@ -1,4 +1,5 @@
 import collections
+
 import mysql.connector
 
 from datetime import date, datetime, timedelta
@@ -8,8 +9,7 @@ CONFIG = {
   'host': '127.0.0.1',
   'port': '3306',
   'user': 'root',
-  'password': 'rootPassword',
-  'database': 'employees',
+  'password': 'passwd',
   'raise_on_warnings': True
 }
 
@@ -87,13 +87,16 @@ TABLES['titles'] = (
 
 class MysqlModel(object):
 
-    def __init__(self, cnx=None, cursor=None):
+    def __init__(self, cnx=None, cursor=None, g_employee=None, g_salary=None):
         self.cnx = cnx
         self.cursor = cursor
+        self.g_employee = g_employee
+        self.g_salary = g_salary
 
-    def connect_database(self):
+    def connect_database(self, database='mysql'):
         try:
             self.cnx = mysql.connector.connect(**CONFIG)
+            print("Connected to {}".format(database))
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print("Something is wrong with your user name or password")
@@ -140,30 +143,30 @@ class MysqlModel(object):
                     print(err.msg)
             else:
                 print("OK")
-        # self.cursor.close()
     
     def get_data_employee(self):
-        # "(first_name, last_name, hire_date, gender, birth_date) "
-        # "VALUES (%s, %s, %s, %s, %s)")
+        """
+        first_name, last_name, hire_date, gender, birth_date
+        """
         tomorrow = datetime.now().date() + timedelta(days=1)
         yield ('Harry', 'Potter', date(1999, 6, 22), 'M', date(2012, 3, 3))
         yield ('Harmaony', 'Granger', date(1999, 1, 2), 'M', date(1999, 12, 12))
 
-    def get_data_salary(self, emp_no):
-        #"(emp_no, salary, from_date, to_date) "
-        #"VALUES (%(emp_no)s, %(salary)s, %(from_date)s, %(to_date)s)")
+    def get_data_salary(self):
+        """
+        emp_no, salary, from_date, to_date
+        """
         tomorrow = datetime.now().date() + timedelta(days=1)
-        yield ({'emp_no': emp_no,
+        yield ({'emp_no': 1,
                 'salary': 65000,
-                'from_date': date(1999, 2, 2),
-                'to_date': date(2001, 1, 1),})
-        yield ({'emp_no': emp_no,
+                'from_date': date(1999, 4, 5),
+                'to_date': date(2001, 12, 1),})
+        yield ({'emp_no': 2,
                 'salary': 40000,
                 'from_date': date(1999, 2, 2),
                 'to_date': date(2001, 1, 1),})
 
     def insert_data(self):
-        # tomorrow = datetime.now().date() + timedelta(days=1)
         # Define query for data insertion.
         add_employee = ("INSERT INTO employees "
                     "(first_name, last_name, hire_date, gender, birth_date) "
@@ -173,20 +176,30 @@ class MysqlModel(object):
                     "VALUES (%(emp_no)s, %(salary)s, %(from_date)s, %(to_date)s)")
 
         # Get employee information
-        g_employee = self.get_data_employee()
-        data_employee = next(g_employee)
+        if self.g_employee is None:
+            self.g_employee = self.get_data_employee()
+        data_employee = next(self.g_employee)
 
         # Insert new employee
         self.cursor.execute(add_employee, data_employee)
         emp_no = self.cursor.lastrowid
 
         # Get salary information
-        g_salary = self.get_data_salary(emp_no)
-        data_salary = next(g_salary)
+        if self.g_salary is None:
+            self.g_salary = self.get_data_salary()
+        data_salary = next(self.g_salary)
+
+        """TODO Dynamically apply emp_no"""
+        # if data_salary['emp_no'] is None:
+        #     data_salary['emp_no'] = 4
+        # print('emp_no', data_salary[emp_no], emp_no)
+        # print('add_salary:', add_salary)
+        # print('data_salary:', data_salary)
 
         # Insert salary information
         self.cursor.execute(add_salary, data_salary)
         self.cnx.commit()
+        print('Inserting data: OK')
 
     def query_data(self):
         # SELECT first_name, last_name, hire_date FROM employees WHERE hire_date BETWEEN 1999-01-01 AND 1999-12-31
@@ -201,6 +214,26 @@ class MysqlModel(object):
         for (first_name, last_name, hire_date) in self.cursor:
             print("{}, {} was hired on {:%d %b %Y}".format(
                 last_name, first_name, hire_date))
+
+    def drop_table(self, table_name):
+        query = ("DROP TABLE IF EXISTS employees")
+        query = ("DROP TABLE IF EXISTS %s")
+        self.cursor.execute(query, table_name)
+        # try:
+        #     self.cursor.execute(query, table_name)
+        # except:
+        #     print("Table was not deleted")
+        # else:
+        #     print("Table {} has been deleted".format(talbe_name))
+
+    def delete_database(self):
+        query = ("DROP DATABASE %s")
+        try:
+            self.cursor.execute(query, (DB_NAME))
+        except:
+            print("Database was not deleted")
+        else:
+            print("Database {} has been deleted".format(DB_NAME))
 
     def close_database(self):
         try:
@@ -225,7 +258,14 @@ def main():
     """Query"""
     mysqlmodel.query_data()
 
-    """Delete Table"""
+    """Drop Table"""
+    # mysqlmodel.cursor.execute("DROP TABLE IF EXISTS employees")
+    # for table in list(TABLES.keys()):
+    #     print('table_name:', table)
+    #     mysqlmodel.drop_table(table)
+
+    """Delete Database"""
+    # mysqlmodel.delete_database()
 
     """Conclude"""
     mysqlmodel.close_database()

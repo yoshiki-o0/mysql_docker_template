@@ -133,13 +133,6 @@ class MysqlModel(object):
             self.g_salary = self.get_data_salary()
         data_salary = next(self.g_salary)
 
-        """TODO Dynamically apply emp_no"""
-        # if data_salary['emp_no'] is None:
-        #     data_salary['emp_no'] = 4
-        # print('emp_no', data_salary[emp_no], emp_no)
-        # print('add_salary:', add_salary)
-        # print('data_salary:', data_salary)
-
         # Insert salary information
         self.cursor.execute(add_salary, data_salary)
         self.cnx.commit()
@@ -158,26 +151,6 @@ class MysqlModel(object):
         for (first_name, last_name, hire_date) in self.cursor:
             print("{}, {} was hired on {:%d %b %Y}".format(
                 last_name, first_name, hire_date))
-
-    def drop_table(self, table_name):
-        query = ("DROP TABLE IF EXISTS employees")
-        query = ("DROP TABLE IF EXISTS %s")
-        self.cursor.execute(query, table_name)
-        # try:
-        #     self.cursor.execute(query, table_name)
-        # except:
-        #     print("Table was not deleted")
-        # else:
-        #     print("Table {} has been deleted".format(talbe_name))
-
-    def delete_database(self):
-        query = ("DROP DATABASE %s")
-        try:
-            self.cursor.execute(query, (DB_NAME))
-        except:
-            print("Database was not deleted")
-        else:
-            print("Database {} has been deleted".format(DB_NAME))
 
     def close_database(self):
         try:
@@ -207,15 +180,6 @@ def main():
 
     """Query"""
     mysqlmodel.query_data()
-
-    """Drop Table"""
-    # mysqlmodel.cursor.execute("DROP TABLE IF EXISTS employees")
-    # for table in list(TABLES.keys()):
-    #     print('table_name:', table)
-    #     mysqlmodel.drop_table(table)
-
-    """Delete Database"""
-    # mysqlmodel.delete_database()
 
     """Conclude"""
     mysqlmodel.close_database()

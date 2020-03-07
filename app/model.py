@@ -17,76 +17,6 @@ CONFIG = {
 
 DB_NAME = 'employees'
 
-TABLES = {}
-
-TABLES['employees'] = (
-    "CREATE TABLE `employees` ("
-    "  `emp_no` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `birth_date` date NOT NULL,"
-    "  `first_name` varchar(14) NOT NULL,"
-    "  `last_name` varchar(16) NOT NULL,"
-    "  `gender` enum('M','F') NOT NULL,"
-    "  `hire_date` date NOT NULL,"
-    "  PRIMARY KEY (`emp_no`)"
-    ") ENGINE=InnoDB")
-
-TABLES['departments'] = (
-    "CREATE TABLE `departments` ("
-    "  `dept_no` char(4) NOT NULL,"
-    "  `dept_name` varchar(40) NOT NULL,"
-    "  PRIMARY KEY (`dept_no`), UNIQUE KEY `dept_name` (`dept_name`)"
-    ") ENGINE=InnoDB")
-
-TABLES['salaries'] = (
-    "CREATE TABLE `salaries` ("
-    "  `emp_no` int(11) NOT NULL,"
-    "  `salary` int(11) NOT NULL,"
-    "  `from_date` date NOT NULL,"
-    "  `to_date` date NOT NULL,"
-    "  PRIMARY KEY (`emp_no`,`from_date`), KEY `emp_no` (`emp_no`),"
-    "  CONSTRAINT `salaries_ibfk_1` FOREIGN KEY (`emp_no`) "
-    "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE"
-    ") ENGINE=InnoDB")
-
-TABLES['dept_emp'] = (
-    "CREATE TABLE `dept_emp` ("
-    "  `emp_no` int(11) NOT NULL,"
-    "  `dept_no` char(4) NOT NULL,"
-    "  `from_date` date NOT NULL,"
-    "  `to_date` date NOT NULL,"
-    "  PRIMARY KEY (`emp_no`,`dept_no`), KEY `emp_no` (`emp_no`),"
-    "  KEY `dept_no` (`dept_no`),"
-    "  CONSTRAINT `dept_emp_ibfk_1` FOREIGN KEY (`emp_no`) "
-    "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,"
-    "  CONSTRAINT `dept_emp_ibfk_2` FOREIGN KEY (`dept_no`) "
-    "     REFERENCES `departments` (`dept_no`) ON DELETE CASCADE"
-    ") ENGINE=InnoDB")
-
-TABLES['dept_manager'] = (
-    "  CREATE TABLE `dept_manager` ("
-    "  `dept_no` char(4) NOT NULL,"
-    "  `emp_no` int(11) NOT NULL,"
-    "  `from_date` date NOT NULL,"
-    "  `to_date` date NOT NULL,"
-    "  PRIMARY KEY (`emp_no`,`dept_no`),"
-    "  KEY `emp_no` (`emp_no`),"
-    "  KEY `dept_no` (`dept_no`),"
-    "  CONSTRAINT `dept_manager_ibfk_1` FOREIGN KEY (`emp_no`) "
-    "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,"
-    "  CONSTRAINT `dept_manager_ibfk_2` FOREIGN KEY (`dept_no`) "
-    "     REFERENCES `departments` (`dept_no`) ON DELETE CASCADE"
-    ") ENGINE=InnoDB")
-
-TABLES['titles'] = (
-    "CREATE TABLE `titles` ("
-    "  `emp_no` int(11) NOT NULL,"
-    "  `title` varchar(50) NOT NULL,"
-    "  `from_date` date NOT NULL,"
-    "  `to_date` date DEFAULT NULL,"
-    "  PRIMARY KEY (`emp_no`,`title`,`from_date`), KEY `emp_no` (`emp_no`),"
-    "  CONSTRAINT `titles_ibfk_1` FOREIGN KEY (`emp_no`)"
-    "     REFERENCES `employees` (`emp_no`) ON DELETE CASCADE"
-    ") ENGINE=InnoDB")
 
 class MysqlModel(object):
 
@@ -120,9 +50,6 @@ class MysqlModel(object):
                 print("Database does not exist")
             else:
                 print(err)
-        else:
-            # self.cnx.close()
-            pass
 
     def check_database_existance(self):
         self.cursor = self.cnx.cursor()
@@ -147,10 +74,9 @@ class MysqlModel(object):
             exit(1)
     
     def create_table(self):
-        for table_name in TABLES:
-            table_description = TABLES[table_name]
-        # for table_name in self.tables:
-        #     table_description = self.tables[table_name]
+
+        for table_name in self.tables:
+            table_description = self.tables[table_name]
             try:
                 print("Creating table {}: ".format(table_name), end='')
                 self.cursor.execute(table_description)
@@ -266,7 +192,7 @@ def main():
     mysqlmodel = MysqlModel()
 
     """Import create-database SQLs"""
-    table_names = ['departments', 'dept_emp', 'dept_manager', 'employees', 'salaries', 'titles']
+    table_names = ['employees', 'departments', 'salaries', 'dept_emp', 'dept_manager', 'titles']
     for table_name in table_names:
         mysqlmodel.import_create_table_sqls(table_name)
 

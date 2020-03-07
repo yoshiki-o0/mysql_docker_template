@@ -26,6 +26,12 @@ Activate terminal and move to the local repository of this package.
   docker-compose up -d
   ```
 
+## Play with database
+- Use database
+`mysql> USE employees`
+- Delete database
+`mysql> DROP DATABASE employees;`
+
 ## Access database from other applications.
 
  |||

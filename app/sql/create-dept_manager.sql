@@ -6,8 +6,6 @@ CREATE TABLE `dept_manager` (
     PRIMARY KEY (`emp_no`,`dept_no`),
     KEY `emp_no` (`emp_no`),
     KEY `dept_no` (`dept_no`),
-    CONSTRAINT `dept_manager_ibfk_1` FOREIGN KEY (`emp_no`) 
-        REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,
-    CONSTRAINT `dept_manager_ibfk_2` FOREIGN KEY (`dept_no`)
-        REFERENCES `departments` (`dept_no`) ON DELETE CASCADE
+    CONSTRAINT `dept_manager_ibfk_1` FOREIGN KEY (`emp_no`) REFERENCES `employees` (`emp_no`) ON DELETE CASCADE,
+    CONSTRAINT `dept_manager_ibfk_2` FOREIGN KEY (`dept_no`) REFERENCES `departments` (`dept_no`) ON DELETE CASCADE
 ) ENGINE=InnoDB

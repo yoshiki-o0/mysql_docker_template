@@ -1,4 +1,6 @@
 import collections
+import os
+import pathlib
 
 import mysql.connector
 
@@ -16,6 +18,7 @@ CONFIG = {
 DB_NAME = 'employees'
 
 TABLES = {}
+
 TABLES['employees'] = (
     "CREATE TABLE `employees` ("
     "  `emp_no` int(11) NOT NULL AUTO_INCREMENT,"
@@ -87,11 +90,24 @@ TABLES['titles'] = (
 
 class MysqlModel(object):
 
-    def __init__(self, cnx=None, cursor=None, g_employee=None, g_salary=None):
+    def __init__(self, cnx=None, cursor=None, g_employee=None, g_salary=None, tables={}):
         self.cnx = cnx
         self.cursor = cursor
         self.g_employee = g_employee
         self.g_salary = g_salary
+        self.tables = tables
+
+    def import_create_table_sqls(self, table_name='employees'):
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        SQL_DIR = 'app/sql'
+        filename = 'create-' + table_name
+        suffix = '.sql'
+        file_path = pathlib.Path(base_dir, SQL_DIR, filename).with_suffix(suffix)
+
+        with open(file_path, 'r') as sql_file:
+            reader = sql_file.read()
+        self.tables[table_name] = reader
 
     def connect_database(self, database='mysql'):
         try:
@@ -133,6 +149,8 @@ class MysqlModel(object):
     def create_table(self):
         for table_name in TABLES:
             table_description = TABLES[table_name]
+        # for table_name in self.tables:
+        #     table_description = self.tables[table_name]
             try:
                 print("Creating table {}: ".format(table_name), end='')
                 self.cursor.execute(table_description)
@@ -245,8 +263,14 @@ class MysqlModel(object):
             print('Connection closed.')
 
 def main():
-    """Connect, Check"""
     mysqlmodel = MysqlModel()
+
+    """Import create-database SQLs"""
+    table_names = ['departments', 'dept_emp', 'dept_manager', 'employees', 'salaries', 'titles']
+    for table_name in table_names:
+        mysqlmodel.import_create_table_sqls(table_name)
+
+    """Connect, Check"""
     mysqlmodel.connect_database()
     mysqlmodel.check_database_existance()
 

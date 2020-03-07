@@ -1,10 +1,10 @@
 {
-    "name": "rkunihiro/docker-development-db",
+    "name": "yoshki/mysql_docker_template",
     "type": "project",
     "authors": [
         {
-            "name": "Ryoh Kunihiro",
-            "email": "11649545+rkunihiro@users.noreply.github.com"
+            "name": "Yoshiki",
+            "email": "58874023+yoshiki-o0@users.noreply.github.com"
         }
     ],
     "scripts": {
